@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brainfold: a shared brain for your team's agents</title>
+<meta name="description" content="Brainfold is an open source MCP server that turns a folder into your team's shared brain: files with permissions that Claude Code, Codex or any MCP harness reads and writes.">
+<meta property="og:title" content="Brainfold: a shared brain for your team's agents">
+<meta property="og:description" content="An open source MCP server: folders and files with permissions that any agent harness reads and writes.">
+<meta property="og:image" content="assets/access.png">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Same tokens as the panel (web/src/index.css in the main repository). */
+  :root {
+    color-scheme: dark;
+    --bg: #0e1014; --card: #16181a; --panel: #1a1c1e; --line: #2b2c30;
+    --fg: #ebebeb; --muted: #adaeb0; --faint: #7d7f80;
+    --accent: #30b3ff; --success: #4cc38a; --danger: #f2686b;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  img, video { max-width: 100%; display: block; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+  header { border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; text-decoration: none; margin-right: auto; }
+  .brand img { width: 24px; height: 24px; }
+  header nav a { color: var(--muted); text-decoration: none; font-size: 15px; margin-left: 20px; }
+  header nav a:hover { color: var(--fg); }
+  .hero { padding-top: 80px; padding-bottom: 48px; }
+  .badge { display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; color: var(--muted); font-size: 13px; }
+  h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.08; font-weight: 600; letter-spacing: -0.02em; margin: 20px 0 16px; max-width: 16ch; text-wrap: balance; }
+  .lede { color: var(--muted); font-size: clamp(17px, 2.2vw, 20px); max-width: 58ch; margin: 0 0 28px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .button { display: inline-block; padding: 10px 18px; border-radius: 8px; border: 1px solid var(--line); text-decoration: none; font-weight: 500; font-size: 15px; }
+  .button:hover { border-color: var(--faint); }
+  .button.primary { background: var(--accent); border-color: var(--accent); color: #06121b; }
+  .button.primary:hover { filter: brightness(1.08); }
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--card); }
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: clamp(24px, 3.4vw, 32px); font-weight: 600; letter-spacing: -0.01em; margin: 0 0 10px; text-wrap: balance; }
+  .sub { color: var(--muted); max-width: 62ch; margin: 0 0 32px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  figure { margin: 0; }
+  figcaption { color: var(--muted); font-size: 14px; margin-top: 10px; }
+  figcaption b { color: var(--fg); font-weight: 500; }
+  .denied { color: var(--danger); }
+  pre { margin: 0; padding: 20px; overflow-x: auto; font: 14px/1.7 var(--mono); color: var(--fg); }
+  pre .c { color: var(--faint); }
+  code { font-family: var(--mono); font-size: 0.92em; }
+  footer { border-top: 1px solid var(--line); padding: 28px 0 44px; color: var(--faint); font-size: 14px; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="/"><img src="assets/logo.svg" alt="">Brainfold</a>
+    <nav>
+      <a href="https://brainfold-demo-production.up.railway.app/#/docs">Docs</a>
+      <a href="https://github.com/jackspolski1103/brainfold">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <span class="badge">Open source · Apache-2.0 · early development</span>
+    <h1>A shared brain for your team's agents</h1>
+    <p class="lede">Brainfold is an MCP server that turns a folder into your team's memory: files with permissions that Claude Code, Codex or any other harness reads and writes. One server per team; each person connects their own agent.</p>
+    <div class="actions">
+      <a class="button primary" href="https://github.com/jackspolski1103/brainfold">View on GitHub</a>
+      <a class="button" href="https://brainfold-demo-production.up.railway.app/#/docs/quickstart">Read the quickstart</a>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-bottom:64px">
+    <div class="frame">
+      <video src="assets/demo.mp4" poster="assets/poster.png" autoplay muted loop playsinline controls aria-label="A tour of the Brainfold panel over a synthetic example team"></video>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <h2>What each agent knows stays with the team</h2>
+      <p class="sub">Every person on a team runs their own harness, and what each agent learns stays in that person's session. Brainfold gives them one place to read and write, with the same permissions the people have.</p>
+      <div class="grid">
+        <div class="card"><h3>Permissions per folder</h3><p>Each folder says who reads and who writes it, by person or group. Nothing is open until a folder grants it.</p></div>
+        <div class="card"><h3>Any harness</h3><p>Fifteen MCP tools over plain files. Claude Code, Codex, Cursor or any MCP client connects with one command and a personal token.</p></div>
+        <div class="card"><h3>Skills and learnings</h3><p>Procedures the team wrote once reach every agent allowed to read them, and agents note what they solve next to the work.</p></div>
+        <div class="card"><h3>History and activity</h3><p>Every change is versioned and can be restored. Every call is logged with who made it and whether it was allowed.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Same server, different view</h2>
+      <p class="sub">An agent has exactly the access of the person whose token it uses. In this synthetic example, Bruno is on the costs team and Carla is not.</p>
+      <div class="pair">
+        <figure><div class="frame"><img src="assets/brain.png" alt="The panel showing a cost review file inside projects/costs" loading="lazy"></div><figcaption><b>A member of the costs team</b> reads the review that an agent wrote into <code>/projects/costs</code>.</figcaption></figure>
+        <figure><div class="frame"><img src="assets/brain-carla.png" alt="The panel for another member: projects lists only contracts" loading="lazy"></div><figcaption><b>Carla</b> sees only <code>contracts</code>. For her agent the costs folder does not exist, and <span class="denied">the refused read</span> is in the activity log.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Try it on your machine</h2>
+      <p class="sub">It needs <code>uv</code>. The example brain is synthetic. The <a href="https://github.com/jackspolski1103/brainfold#try-it">README</a> continues with the first account and the token.</p>
+      <div class="frame"><pre><span class="c"># Start the server over the example brain</span>
+git clone https://github.com/jackspolski1103/brainfold &amp;&amp; cd brainfold
+uv sync
+cp -R examples/brain /tmp/brainfold-brain
+uv run brainfold serve --root /tmp/brainfold-brain
+
+<span class="c"># Connect a harness with the token you create</span>
+claude mcp add --transport http brainfold http://127.0.0.1:8020/mcp \
+  --header "Authorization: Bearer &lt;token&gt;"</pre></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Where it stands</h2>
+      <p class="sub">Brainfold is young. The server, permissions, history, skills, accounts and the web panel work and are tested, and it runs on the author's own deployment. It has not been used by many teams yet, so expect rough edges and open an issue with what you find.</p>
+      <div class="actions">
+        <a class="button" href="https://github.com/jackspolski1103/brainfold/issues">Report an issue</a>
+        <a class="button" href="https://brainfold-demo-production.up.railway.app/#/docs">Documentation</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">Brainfold is a personal, independent open source project under the <a href="https://github.com/jackspolski1103/brainfold/blob/main/LICENSE">Apache-2.0</a> license. The screenshots show synthetic data.</div>
+</footer>
+
+</body>
+</html>

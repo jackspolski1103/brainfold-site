@@ -1,0 +1,13 @@
+# brainfold-site
+
+The landing page of [Brainfold](https://github.com/jackspolski1103/brainfold), a shared brain for a team's agents over MCP.
+
+One static page in `site/`, served by Caddy. The product documentation is not copied here: the page links to the documentation that the Brainfold panel serves.
+
+```bash
+python3 -m http.server -d site 8080     # preview at http://127.0.0.1:8080
+```
+
+The screenshots and the video in `site/assets/` come from a local Brainfold server over its synthetic example brain.
+
+Licensed under [Apache-2.0](LICENSE).
