@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Brainfold demo film</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0e1014; --card:#16181a; --panel:#1a1c1e; --line:#2b2c30; --fg:#ebebeb; --muted:#adaeb0; --faint:#7d7f80; --accent:#30b3ff; --success:#4cc38a; --danger:#f2686b; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--fg); font-family: "IBM Plex Sans", sans-serif; }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .glow { position: absolute; width: 1400px; height: 1400px; border-radius: 50%; left: 260px; top: -160px; background: radial-gradient(circle, rgba(48,179,255,.16), rgba(48,179,255,0) 62%); }
+  .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .big { font-size: 112px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.08; }
+  .big .w { display: inline-block; }
+  .accent { color: var(--accent); }
+  .danger { color: var(--danger); }
+  .tag { font-size: 38px; color: var(--muted); margin-top: 28px; }
+  /* scene 3 */
+  .caption { position: absolute; left: 0; right: 0; top: 70px; text-align: center; font-size: 50px; font-weight: 600; letter-spacing: -0.02em; }
+  .caption small { display: block; font-size: 28px; font-weight: 400; color: var(--muted); margin-top: 10px; letter-spacing: 0; }
+  .pane { position: absolute; top: 290px; width: 600px; height: 560px; background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; overflow: hidden; }
+  .pane header { display: flex; align-items: center; gap: 14px; padding: 18px 22px; border-bottom: 1.5px solid var(--line); background: var(--panel); font-size: 28px; font-weight: 500; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 600; font-size: 20px; color: #06121b; }
+  .pane header span.group { margin-left: auto; font: 20px "IBM Plex Mono", monospace; color: var(--accent); border: 1.5px solid rgba(48,179,255,.35); background: rgba(48,179,255,.1); padding: 3px 12px; border-radius: 8px; }
+  .term { padding: 24px; font: 25px/1.45 "IBM Plex Mono", monospace; }
+  .term .call { color: var(--fg); min-height: 74px; word-break: break-all; }
+  .term .call b { color: var(--accent); font-weight: 500; }
+  .term .res { margin: 8px 0 26px; padding: 10px 14px; border-radius: 10px; font-size: 23px; }
+  .res.ok { color: var(--success); background: rgba(76,195,138,.1); border: 1.5px solid rgba(76,195,138,.3); }
+  .res.no { color: var(--danger); background: rgba(242,104,107,.1); border: 1.5px solid rgba(242,104,107,.4); }
+  .res.zero { color: var(--muted); background: rgba(255,255,255,.04); border: 1.5px solid var(--line); }
+  .cursor { display: inline-block; width: 14px; height: 28px; background: var(--accent); vertical-align: -4px; margin-left: 2px; }
+  .brain { position: absolute; left: 720px; top: 290px; width: 480px; height: 560px; background: var(--card); border: 1.5px solid var(--accent); border-radius: 18px; box-shadow: 0 0 80px rgba(48,179,255,.18); overflow: hidden; }
+  .brain header { white-space: nowrap; padding: 18px 22px; border-bottom: 1.5px solid var(--line); background: var(--panel); font-size: 28px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+  .brain header small { margin-left: auto; white-space: nowrap; font-size: 22px; font-weight: 400; color: var(--muted); }
+  .rows { padding: 14px 10px; }
+  .row { height: 54px; display: flex; align-items: center; gap: 12px; padding: 0 12px; font-size: 26px; border-radius: 10px; overflow: hidden; white-space: nowrap; }
+  .row .chip { margin-left: auto; font: 19px "IBM Plex Mono", monospace; color: var(--accent); }
+  .row.file { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 21px; }
+  .ico { width: 26px; height: 26px; flex: none; }
+  .wire { position: absolute; top: 560px; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); border-radius: 3px; opacity: 0; }
+  .note { position: absolute; left: 0; right: 0; bottom: 96px; text-align: center; font-size: 26px; color: var(--faint); }
+  /* scene 4 */
+  #shot { position: absolute; left: 0; top: 0; width: 1920px; transform-origin: 1130px 755px; }
+  #box { position: absolute; left: 425px; top: 726px; width: 1410px; height: 58px; border: 4px solid var(--danger); border-radius: 12px; box-shadow: 0 0 60px rgba(242,104,107,.55); transform-origin: 705px 29px; opacity: 0; }
+  .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,16,20,0) 55%, rgba(14,16,20,.96) 82%); }
+  .lower { position: absolute; left: 0; right: 0; bottom: 84px; text-align: center; font-size: 54px; font-weight: 600; letter-spacing: -0.02em; }
+  /* scene 5 */
+  .logo { width: 150px; height: 150px; }
+  .url { font: 34px "IBM Plex Mono", monospace; color: var(--accent); margin-top: 44px; }
+  .foot { position: absolute; left: 0; right: 0; bottom: 60px; text-align: center; font-size: 22px; color: var(--faint); }
+</style>
+</head>
+<body>
+
+<div class="scene" id="s1"><div class="glow"></div><div class="center">
+  <div class="big" id="l1"><span class="w">Every</span> <span class="w">agent</span> <span class="w">on</span> <span class="w">your</span> <span class="w">team</span></div>
+  <div class="big accent" id="l2"><span class="w">learns</span> <span class="w">alone.</span></div>
+</div></div>
+
+<div class="scene" id="s2"><div class="glow"></div><div class="center">
+  <svg class="logo" id="cube" viewBox="0 0 24 24" fill="none" stroke="#30b3ff" stroke-width="1.5" stroke-linejoin="round"><path pathLength="1" d="M3.5 6.5 12 3l8.5 3.5v11L12 21l-8.5-3.5z"/><path pathLength="1" d="M3.5 6.5 12 10l8.5-3.5M12 10v11"/></svg>
+  <div class="big" id="name" style="margin-top:26px">Brainfold</div>
+  <div class="tag" id="tag">One shared brain for all of them. Over MCP.</div>
+</div></div>
+
+<div class="scene" id="s3">
+  <div class="caption" id="cap"></div>
+  <div class="pane" id="bruno" style="left:80px">
+    <header><div class="avatar" style="background:#4cc38a">B</div>Bruno's agent<span class="group">@costs</span></header>
+    <div class="term">
+      <div class="call" id="b1"></div><div class="res ok" id="b1r">✓ saved · version 09c484c9</div>
+      <div class="call" id="b2"></div><div class="res ok" id="b2r">✓ appended · version afc6dd26</div>
+    </div>
+  </div>
+  <div class="brain" id="brain">
+    <header><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#30b3ff" stroke-width="1.7" stroke-linejoin="round"><path d="M3.5 6.5 12 3l8.5 3.5v11L12 21l-8.5-3.5z"/><path d="M3.5 6.5 12 10l8.5-3.5M12 10v11"/></svg>The team's brain<small id="view"></small></header>
+    <div class="rows">
+      <div class="row"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#30b3ff" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2.5h8.4A1.5 1.5 0 0 1 21 9v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/></svg>common</div>
+      <div class="row"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#30b3ff" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2.5h8.4A1.5 1.5 0 0 1 21 9v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/></svg>projects</div>
+      <div class="row" style="padding-left:44px"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#30b3ff" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2.5h8.4A1.5 1.5 0 0 1 21 9v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/></svg>contracts<span class="chip">@contracts</span></div>
+      <div class="row costs" style="padding-left:44px"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#30b3ff" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2.5h8.4A1.5 1.5 0 0 1 21 9v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/></svg>costs<span class="chip">@costs</span></div>
+      <div class="row file costs" style="padding-left:80px">process.md</div>
+      <div class="row file costs" id="f1" style="padding-left:80px">2026-q4-cloud-review.md</div>
+      <div class="row file costs" id="f2" style="padding-left:80px">LEARNINGS.md</div>
+      <div class="row"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#30b3ff" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2.5h8.4A1.5 1.5 0 0 1 21 9v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/></svg>skills</div>
+    </div>
+  </div>
+  <div class="pane" id="carla" style="left:1240px">
+    <header><div class="avatar" style="background:#f1b84b">C</div>Carla's agent<span class="group">@contracts</span></header>
+    <div class="term">
+      <div class="call" id="c1"></div><div class="res zero" id="c1r">0 hits</div>
+      <div class="call" id="c2"></div><div class="res no" id="c2r">✗ unavailable: The path is not available.</div>
+    </div>
+  </div>
+  <div class="wire" id="wireL" style="left:680px; width:40px"></div>
+  <div class="wire" id="wireR" style="left:1200px; width:40px"></div>
+  <div class="note">Real tool calls and answers from a Brainfold server · synthetic data</div>
+</div>
+
+<div class="scene" id="s4">
+  <img id="shot" src="../site/assets/activity.png" alt="">
+  <div id="box"></div>
+  <div class="shade"></div>
+  <div class="lower" id="low">Every call is logged. <span class="danger">Including the one it refused.</span></div>
+</div>
+
+<div class="scene" id="s5"><div class="glow"></div><div class="center">
+  <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="#30b3ff" stroke-width="1.5" stroke-linejoin="round"><path d="M3.5 6.5 12 3l8.5 3.5v11L12 21l-8.5-3.5z"/><path d="M3.5 6.5 12 10l8.5-3.5M12 10v11"/></svg>
+  <div class="big" style="margin-top:26px">Brainfold</div>
+  <div class="tag">A shared brain for your team's AI agents</div>
+  <div class="tag" style="font-size:30px; color:var(--faint); margin-top:14px">Open source · self-hosted · any MCP harness</div>
+  <div class="url">github.com/jackspolski1103/brainfold</div>
+</div><div class="foot">Early development · Apache-2.0</div></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const p = (t, start, dur) => clamp((t - start) / dur);          // linear progress
+const out = (x) => 1 - Math.pow(1 - x, 3);                      // ease-out cubic
+const io = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const e = (t, start, dur) => out(p(t, start, dur));
+const DURATION = 25;
+
+// A scene is visible between `a` and `b`, fading over `f` seconds at each end.
+function scene(id, t, a, b, f = 0.4) {
+  const o = Math.min(p(t, a, f), 1 - p(t, b - f, f));
+  $(id).style.opacity = o;
+  return o > 0;
+}
+function rise(el, k, dy = 40) { el.style.opacity = k; el.style.transform = `translateY(${(1 - k) * dy}px)`; }
+function type(el, verb, rest, t, start, dur) {
+  const full = verb + " " + rest, n = Math.floor(p(t, start, dur) * full.length);
+  const shown = full.slice(0, n), v = shown.slice(0, verb.length), r = shown.slice(verb.length);
+  const typing = t >= start && t < start + dur + 0.25;
+  el.innerHTML = (t < start ? "" : `<b>${v}</b>${r.replace(/</g, "&lt;")}`) + (typing ? '<span class="cursor"></span>' : "");
+}
+function pop(el, t, at) {                                        // result chips: fade and settle
+  const k = e(t, at, 0.35);
+  el.style.opacity = k; el.style.transform = `translateY(${(1 - k) * 10}px) scale(${0.96 + 0.04 * k})`;
+}
+function wire(el, t, at) { const k = p(t, at, 0.7); el.style.opacity = Math.sin(k * Math.PI); el.style.transform = `scaleX(${1 + 2 * k})`; }
+
+function render(t) {
+  // 1. The problem
+  if (scene("s1", t, 0, 3.3)) {
+    [...document.querySelectorAll("#l1 .w")].forEach((w, i) => rise(w, e(t, 0.15 + i * 0.09, 0.5)));
+    [...document.querySelectorAll("#l2 .w")].forEach((w, i) => rise(w, e(t, 1.05 + i * 0.16, 0.55), 60));
+    $("s1").querySelector(".center").style.transform = `scale(${1 + 0.03 * p(t, 0, 3.3)})`;
+  }
+  // 2. The name
+  if (scene("s2", t, 3.3, 5.9)) {
+    [...$("cube").querySelectorAll("path")].forEach((path, i) => { path.style.strokeDasharray = 1; path.style.strokeDashoffset = 1 - e(t, 3.4 + i * 0.3, 0.9); });
+    rise($("name"), e(t, 3.9, 0.5)); rise($("tag"), e(t, 4.4, 0.5), 24);
+  }
+  // 3. Two agents, one server
+  if (scene("s3", t, 5.9, 17.2)) {
+    const enter = e(t, 6.0, 0.7);
+    $("bruno").style.transform = `translateX(${(1 - enter) * -120}px)`; $("bruno").style.opacity = enter;
+    $("brain").style.transform = `scale(${0.92 + 0.08 * enter})`; $("brain").style.opacity = enter;
+    const carlaIn = e(t, 10.6, 0.7);
+    $("carla").style.transform = `scale(${0.97 + 0.03 * carlaIn})`; $("carla").style.opacity = enter * (0.3 + 0.7 * carlaIn);
+    $("bruno").style.filter = `brightness(${1 - 0.45 * p(t, 10.6, 0.6)})`;
+
+    type($("b1"), "write", "/projects/costs/2026-q4-cloud-review.md", t, 6.8, 1.1); pop($("b1r"), t, 8.1);
+    type($("b2"), "append", "/projects/costs/LEARNINGS.md", t, 8.8, 0.8); pop($("b2r"), t, 9.8);
+    type($("c1"), "search", '"egress"', t, 11.4, 0.5); pop($("c1r"), t, 12.2);
+    type($("c2"), "read", "/projects/costs/2026-q4-cloud-review.md", t, 12.9, 1.1); pop($("c2r"), t, 14.2);
+    wire($("wireL"), t, 8.0); if (t > 9.5) wire($("wireL"), t, 9.7);
+    wire($("wireR"), t, 12.1); if (t > 13.5) wire($("wireR"), t, 14.1);
+
+    // Files appear when Bruno's agent writes them.
+    for (const [id, at] of [["f1", 8.1], ["f2", 9.8]]) {
+      const k = e(t, at, 0.45), flash = 1 - p(t, at, 1.4);
+      $(id).style.height = 54 * k + "px"; $(id).style.opacity = k;
+      $(id).style.background = `rgba(48,179,255,${0.28 * flash * (t >= at)})`;
+      $(id).style.color = flash > 0 && t >= at ? "#ebebeb" : "";
+    }
+    // For Carla the costs folder is not there: its rows close.
+    const hide = io(p(t, 10.9, 0.9));
+    document.querySelectorAll(".costs").forEach((row) => {
+      const base = row.id === "f1" ? e(t, 8.1, 0.45) : row.id === "f2" ? e(t, 9.8, 0.45) : 1;
+      row.style.height = 54 * base * (1 - hide) + "px"; row.style.opacity = base * (1 - hide);
+    });
+    $("view").textContent = t < 10.9 ? "Bruno's view" : "Carla's view";
+    $("view").style.color = t < 10.9 ? "" : "#f1b84b";
+    const shake = t >= 14.2 && t < 14.7 ? Math.sin((t - 14.2) * 60) * 9 * (1 - p(t, 14.2, 0.5)) : 0;
+    if (shake) $("carla").style.transform = `translateX(${shake}px)`;
+    $("carla").style.borderColor = t >= 14.2 ? `rgba(242,104,107,${0.35 + 0.65 * (1 - p(t, 14.2, 1.2))})` : "";
+    $("brain").style.borderColor = "";
+
+    const caps = [
+      [6.2, 10.6, "Bruno's agent writes what it learned.", "The whole costs team's agents can read it."],
+      [10.6, 14.2, "Carla's agent asks the same server.", "She is not in @costs."],
+      [14.2, 17.2, 'For her agent, <span class="danger">the folder does not exist.</span>', "Denied by default. No leak, not even the name."],
+    ];
+    for (const [a, b, head, sub] of caps) if (t >= a && t < b) {
+      $("cap").innerHTML = `${head}<small>${sub}</small>`;
+      rise($("cap"), Math.min(e(t, a, 0.4), 1 - p(t, b - 0.25, 0.25)), 18);
+    }
+    if (t < 6.2) $("cap").style.opacity = 0;
+  }
+  // 4. The log
+  if (scene("s4", t, 17.2, 21.8)) {
+    const z = io(p(t, 17.6, 1.8));
+    const tr = `translate(${-170 * z}px, ${-215 * z}px) scale(${1 + 0.3 * z})`;
+    $("shot").style.transform = tr;
+    const k = e(t, 19.3, 0.5);
+    $("box").style.opacity = k; $("box").style.transform = `translate(-170px, -215px) scale(${1.3 * (1.12 - 0.12 * k)})`;
+    rise($("low"), e(t, 19.0, 0.5), 24);
+  }
+  // 5. End card
+  if (scene("s5", t, 21.8, 25.4)) {
+    [...$("s5").querySelectorAll(".center > *")].forEach((el, i) => rise(el, e(t, 22.0 + i * 0.16, 0.55), 30));
+  }
+}
+window.render = render;
+window.ready = Promise.all([document.fonts.ready, $("shot").decode()]).then(() => { render(0); return true; });
+// Opened directly in a browser it plays in a loop; the recorder calls render(t) itself.
+if (!location.search.includes("record")) { const t0 = performance.now(); (function tick() { render(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(tick); })(); }
+</script>
+</body>
+</html>
