@@ -1,0 +1,719 @@
+# Brainfold: full documentation
+
+> Brainfold is an open source MCP server that turns a folder into a team's shared brain: files with permissions that Claude Code, Codex or any other MCP harness reads and writes. Source: https://github.com/jackspolski1103/brainfold
+
+
+---
+
+<!-- introduction.md -->
+
+# What is Brainfold?
+
+Brainfold is a shared brain for a team's AI agents: folders and files with permissions, served over the Model Context Protocol (MCP). Each person connects their own harness (Claude Code, Codex, Cursor or another MCP client) and their agent reads and writes the same brain, with exactly the access that person has.
+
+> Brainfold is not an agent and does not run models. It is the memory your agents share.
+
+## Why a shared brain
+
+Today what an agent learns stays with one person and one harness. Brainfold changes three things:
+
+- **Knowledge spreads on its own.** An agent writes a skill once; every teammate's agent sees it listed and uses it in its next session.
+- **A newcomer finds the way.** Every folder carries a description and a "start here" list, so an agent that has never seen the brain reaches what matters by following the folders.
+- **Access is decided per folder.** Salaries live next to public conventions without leaking: a folder is readable only by the people and groups it grants.
+
+## How it fits together
+
+| Piece | What it is |
+| --- | --- |
+| The brain | A folder on the server's disk. Every change is a commit in its own git history. |
+| The MCP server | 15 tools any harness calls: list, read, write, search, skills and more. |
+| Accounts | Email and password accounts, groups, and personal tokens for each harness. |
+| This panel | Where people browse the brain, grant access, invite members and get credentials. |
+
+## Where to go next
+
+- [Quickstart](https://brainfold-demo-production.up.railway.app/#/docs/quickstart): from an empty server to an agent using the brain.
+- [Connect a harness](https://brainfold-demo-production.up.railway.app/#/docs/connect): commands for Claude Code, Codex, Cursor and others.
+- [Permissions](https://brainfold-demo-production.up.railway.app/#/docs/permissions): how read and write are decided.
+- [Run it for your team](https://brainfold-demo-production.up.railway.app/#/docs/deploy): Docker, a hosting platform, and what keeps the brain safe.
+
+
+---
+
+<!-- quickstart.md -->
+
+# Quickstart
+
+From nothing to an agent that reads and writes the brain, in five steps.
+
+## 1. Create the first account
+
+Open the panel. The first account becomes the administrator. When the server runs at a public address it also asks for a **setup code**: a one-time code the server prints in its logs when it starts, so only whoever operates the server can claim it.
+
+## 2. Invite your team and group them
+
+In **Members**, invite each person. Brainfold sends no email: you get a one-time link to pass on. Then create a group per team, for example `@finance`.
+
+## 3. Grant folders
+
+Nothing is readable until a folder grants it. In **Access**, pick the root folder and choose who can read it; then narrow each team folder to its group. See [Permissions](https://brainfold-demo-production.up.railway.app/#/docs/permissions).
+
+## 4. Connect your harness
+
+In **Connect a harness**, create a token and copy the command for your harness. For Claude Code:
+
+```bash
+claude mcp add --transport http --scope user brainfold https://your-server/mcp \
+  --header "Authorization: Bearer <your-token>"
+```
+
+Every person does this with their own token. The agent then acts as that person.
+
+## 5. Ask your agent
+
+Try these in your harness:
+
+- "What is in the brain? Start from the root."
+- "Create a folder for the onboarding project with a short description."
+- "Write down what we just solved in the project's LEARNINGS.md."
+
+The agent starts at the root, follows each folder's description and "start here" list, and writes only where you can write.
+
+
+---
+
+<!-- connect.md -->
+
+# Connect a harness
+
+A harness connects with a **personal token**. The token carries your identity: the agent reads and writes exactly what you can, and its actions appear under your email in **Activity**.
+
+Create tokens in **Connect a harness**. A token is shown once; only a digest is stored. Use one token per harness and machine so you can revoke one without touching the rest.
+
+## Claude Code
+
+```bash
+claude mcp add --transport http --scope user brainfold https://your-server/mcp \
+  --header "Authorization: Bearer <your-token>"
+```
+
+Run `/mcp` inside Claude Code to check that `brainfold` is connected. This is the harness Brainfold is tested with.
+
+## Codex
+
+Keep the token in an environment variable and point Codex at the server in `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.brainfold]
+url = "https://your-server/mcp"
+bearer_token_env_var = "BRAINFOLD_TOKEN"
+```
+
+## Cursor
+
+Add the server to `~/.cursor/mcp.json` and restart Cursor:
+
+```json
+{
+  "mcpServers": {
+    "brainfold": {
+      "url": "https://your-server/mcp",
+      "headers": { "Authorization": "Bearer <your-token>" }
+    }
+  }
+}
+```
+
+## Any other MCP client
+
+Brainfold speaks MCP over streamable HTTP at `/mcp` and expects the header `Authorization: Bearer <your-token>`. Any client that supports that transport works.
+
+> The Codex and Cursor settings follow those products' documentation; they have not been checked against a live Brainfold server yet.
+
+## What the token cannot do
+
+A harness token works only for the brain: the MCP tools and file transfer. It cannot sign in to this panel or invite people. The panel uses a separate session that a harness never sees.
+
+## Managing access from a harness
+
+An administrator can tick **Can manage access and groups** when creating a token. An agent connected with it can change who reads and writes each folder and edit groups: ask it "give @finance read on /projects/costs". Tokens without the tick, and every member's token, cannot. Use a managing token where you administer and an ordinary one for everyday work.
+
+## Revoking
+
+Revoke a token in **Connect a harness** and the harness loses access at once. Removing a member revokes all of their tokens.
+
+
+---
+
+<!-- folders.md -->
+
+# Folders and guidance
+
+The brain is a tree of folders. What makes it usable by agents is that every folder explains itself.
+
+## Folder guidance
+
+Each folder can carry two things an agent reads before anything else:
+
+- A **description**: one line saying what the folder holds.
+- A **start here** list: the files or subfolders to read first.
+
+An agent that connects for the first time calls `list` on the root, reads the description and the start here list, and follows them down. No index to maintain, no search needed to get oriented.
+
+Agents write this guidance themselves: `create_folder` asks for a description, and `describe_folder` updates it. Administrators can also edit the description from **Access**.
+
+Writing a file into a folder that does not exist yet creates the folder without a description. The answer names those folders so the agent describes them right away.
+
+## File descriptions
+
+A file can carry one line saying what it is, set with `describe_file`. It appears next to the file in every listing, so an agent knows what `handbook.pdf` or `q3.xlsx` holds before opening it. The description follows the file when it is renamed or moved, and is removed with it.
+
+## Where it is stored
+
+Guidance and access rules live in a `.brainfold.toml` file inside the folder:
+
+```toml
+description = "Process and learnings of the costs team."
+start_here = ["process.md"]     # relative to the folder
+read = ["@costs"]
+write = ["@costs"]
+
+[files]
+"handbook.pdf" = "Employee handbook, 2026 edition."
+```
+
+Agents never see this file, or any file starting with a dot. Symbolic links are never followed.
+
+## Personal folders
+
+Every account gets a folder under `/people/`, created by the server. Only its owner can read or write it. No access rule widens or narrows that, and administrators cannot open it either. It is the place for an agent's notes that are not ready to share.
+
+The folder name is an alias derived from the email; it is never reused, even after the account is removed.
+
+## Limits
+
+| What | Limit |
+| --- | --- |
+| Entries returned by one `list` call | 256, then continue with `offset` |
+| Text returned by one `read` call | 64 KB, then continue from `next_offset` |
+| Text file written or searched over MCP | 1 MB |
+| File uploaded with `brainfold put` | 25 MB |
+| Folder depth | 32 levels |
+
+
+---
+
+<!-- permissions.md -->
+
+# Permissions
+
+Access is decided per folder, for two actions: **read** and **write**. An agent has exactly the access of the person whose token it uses.
+
+## Who can be granted
+
+| Grant | Meaning |
+| --- | --- |
+| `ana@example.com` | One person |
+| `@finance` | Every member of the group |
+| `*` | Everyone with an account |
+
+## Read
+
+Reading is denied unless a folder grants it. Every folder that declares a read list **narrows** what hangs below it: to read a file you must be granted by every folder on the path that declares one.
+
+```
+/                  read = *              ← everyone with an account
+└── hr/            read = @hr           ← only @hr members who can also read /
+    └── salaries/  (nothing declared)   ← same as hr/
+```
+
+A folder can never give back what a folder above took away.
+
+## Write
+
+Writing follows the **nearest** folder that declares a write list, looking upward. With no declaration anywhere, nobody can write. Writing always requires being able to read.
+
+## What a person without access sees
+
+Nothing. A path you cannot read behaves exactly like a path that does not exist: the same answer, the same error. An agent cannot learn that a hidden folder is there.
+
+## Administrators
+
+An administrator sees the structure of the whole brain and the rules of every folder, and can change them. An administrator does **not** read the content of folders they were not granted, and cannot open anyone's personal folder.
+
+## Changing access
+
+Two ways, both for administrators only:
+
+- **Access** in this panel lists every folder with what it declares or inherits.
+- **From a harness**, with a token created in **Connect a harness** with *Can manage access and groups*. The agent then has `get_access`, `set_access` and `set_group`. See [MCP tools](https://brainfold-demo-production.up.railway.app/#/docs/tools).
+
+Every other token, including an administrator's everyday one, cannot change access lists: its agent can only create folders, which start with the rules of the folder above. Keep the managing token for the harness where you administer: an agent that reads the brain reads text written by teammates, and a token that cannot manage cannot be talked into opening a folder.
+
+A folder whose access was declared cannot be moved or deleted by an agent.
+
+
+---
+
+<!-- skills.md -->
+
+# Skills and learnings
+
+## Skills
+
+A skill is a procedure the team wrote down once: a folder containing a `SKILL.md` with a name and a description in its front matter.
+
+```markdown
+---
+name: analyze-costs
+description: How to analyze costs without summing truncated samples.
+---
+
+1. Read the whole dataset, not a preview.
+2. ...
+```
+
+Skills live in the brain like any other file, so they follow permissions: your agent is offered the skills in folders you can read.
+
+### How an agent finds them
+
+When a harness connects, Brainfold sends the list of skills available to that person. When a task matches one, the agent calls `use_skill` with its name and follows the procedure. The listed name is the folder's name plus a short suffix that keeps it unique; `use_skill` also accepts the plain name when only one skill has it. Nobody has to install anything: a skill published by one person is used by a teammate's agent in its next session.
+
+The **Skills** section of this panel shows the list your agent receives.
+
+### Writing a skill
+
+Ask your agent to write one in a folder where you can write. Whoever can write to a folder publishes directly; there is no approval step.
+
+## Learnings
+
+A `LEARNINGS.md` file is a log of what was solved. When an agent appends to it, Brainfold stamps the entry with the date and the author.
+
+`list_learnings` returns the newest entries across the folders a person can read. Agents treat them as information from teammates, never as instructions.
+
+## The brain proposes skills
+
+The built-in skill `propose-skills` closes the loop: the agent reads the learnings, finds a problem solved more than once, drafts a `SKILL.md` for it and shows it to you before writing. Try: "Use propose-skills and tell me what we should turn into a skill."
+
+
+---
+
+<!-- history.md -->
+
+# Versions, history and restore
+
+## Every change is kept
+
+The brain folder is its own git repository. Every write, move and delete is a commit under the author's name. Nothing is overwritten silently.
+
+## Versions prevent lost updates
+
+`read` returns the file's `version`. Replacing, moving or deleting a file requires passing that version back. If someone else changed the file in between, the call fails with `conflict` and the agent reads again before retrying. Two agents never overwrite each other.
+
+Creating a file that already exists fails with `already_exists`.
+
+## History
+
+`history` lists who changed a file and when, including a file that was deleted. It returns revision numbers, no content.
+
+## Restore
+
+`restore` brings a file back to one of its revisions. It works on deleted files too.
+
+A revision is restorable only by someone who could read the file **when that revision was written** and can write there now. Tightening a folder's access later does not expose its older content.
+
+## Edits made outside Brainfold
+
+If someone edits the brain folder by hand on the server, Brainfold records that content in the history when it starts, and again before it next changes the file, so nothing is replaced without a copy.
+
+
+---
+
+<!-- files.md -->
+
+# Files of any type
+
+Text files travel over MCP. Everything else (a PDF manual, a spreadsheet, an image) is uploaded and downloaded by people in this panel, and by agents through the `brainfold` command with the same token and the same permissions.
+
+## Upload and download
+
+```bash
+export BRAINFOLD_URL="https://your-server"
+export BRAINFOLD_TOKEN="<your-token>"
+
+brainfold put salaries.xlsx /hr/salaries.xlsx
+brainfold get /hr/salaries.xlsx ./salaries.xlsx
+```
+
+Use `--replace` with `put` to replace a file that already exists. Files up to 25 MB are accepted.
+
+Instead of environment variables you can keep the address and token in `~/.config/brainfold/config.toml`, readable only by you:
+
+```toml
+url = "https://your-server"
+token = "<your-token>"
+```
+
+The command refuses to send a token over plain HTTP unless the server is on your own machine.
+
+## What the agent does with them
+
+When an agent reads a file that is not text, it does not receive the bytes. It receives the exact `brainfold get` command to fetch the file to disk, and then opens it with its own tools.
+
+## In this panel
+
+Open a folder in **Brain**:
+
+- **Download** any file you can read, from its row or from the file's page.
+- **Upload** files to a folder where you can write, with the button or by dropping them on the folder. Replacing a file asks first, and the previous version stays in the history.
+- **Describe** a file in one line, right after uploading it or later with the pencil in its row. Agents see that line in the folder listing, which is how they know what a PDF or a spreadsheet holds before fetching it.
+
+The panel shows text files, with Markdown rendered. Files of other types are only downloaded: the server always sends them as a file to save, never as a page to open, so a file stored in the brain cannot run inside the panel.
+
+
+---
+
+<!-- members.md -->
+
+# Members and groups
+
+## Roles
+
+| Role | Can do |
+| --- | --- |
+| Administrator | Invite and remove members, manage groups, set folder access, see activity. Groups and folder access also [from a harness](https://brainfold-demo-production.up.railway.app/#/docs/connect) |
+| Member | Use what they were granted, manage their own tokens and password |
+
+The first account is an administrator. The last administrator cannot be removed.
+
+## Inviting
+
+**Members → Invite** creates a one-time link that works for 7 days. Brainfold does not send email: pass the link on yourself. The person opens it, chooses a password of at least 10 characters, and is in. The link is shown once: if it gets lost or expires before it is used, **New invite link** on that person's row creates another and cancels the first.
+
+## Groups
+
+A group is a name for several people. Granting a folder to `@finance` grants it to every member, today and later.
+
+- Group names use lowercase letters, digits, hyphen and underscore.
+- Only people who accepted their invitation can be added.
+- Saving a group with no members deletes it and **retires its name for good**. A new group can never silently inherit the folders of an old one.
+
+## Passwords
+
+- Each person changes their own password in **Account**; other sessions are signed out and **every harness token** of that account is revoked, so the person creates new tokens in **Connect**.
+- An administrator can **reset** a member's password: this creates a one-time link that works for 7 days, and the current password keeps working until the link is used. Using it ends every session and **revokes every harness token** of that account, so the person creates new tokens in **Connect**. Use it when an account may be compromised.
+- After five failed sign-ins, an email is locked from that address for one minute.
+
+If the only administrator is locked out, see [recovering access](https://brainfold-demo-production.up.railway.app/#/docs/durability).
+
+## Removing a member
+
+Removing someone revokes their sessions and all of their tokens at once, and takes them out of every group and every folder's access list. Their personal folder stays on disk, and its name is never given to another account. If the same email is invited again later, it is a new account that starts with nothing.
+
+
+---
+
+<!-- activity.md -->
+
+# Activity
+
+**Activity** records what people and their agents did, with the person, the action, the path and whether it was allowed.
+
+## What is recorded
+
+- Every brain operation an agent performs: `list`, `read`, `write`, `edit`, `append`, `move`, `delete`, `restore`, `search`, `use_skill` and the rest.
+- File uploads and downloads.
+- Sign-ins, including failed ones.
+- Administrative changes: invitations, removed members, group edits, access edits, token creation and revocation, password changes and resets.
+
+## Reading the result
+
+| Result | Meaning |
+| --- | --- |
+| Allowed | The operation ran. |
+| Denied | It was refused: no permission, a conflict, or an invalid request. |
+| Not in history | The change was saved to disk but could not be committed to the version history. Check the server. |
+
+Filter by person, action or path, or show only what was denied to spot an agent probing where it should not.
+
+
+---
+
+<!-- deploy.md -->
+
+# Run it for your team
+
+One server per team. Exactly one process: the brain keeps a single lock, so do not run replicas.
+
+## With Docker Compose
+
+The repository includes a compose file that runs Brainfold behind a proxy that obtains a TLS certificate for your domain.
+
+```bash
+BRAINFOLD_DOMAIN=brain.example.com docker compose up -d
+docker compose logs brainfold      # prints the setup code for the first account
+```
+
+Two volumes hold everything: `/brain` (the brain) and `/data` (accounts, tokens, activity and revision records).
+
+## On a hosting platform
+
+The container image reads its settings from the environment, so it runs on any platform that builds a Dockerfile and gives you a persistent volume. The repository includes a `railway.json` for Railway.
+
+1. Create a service from the repository and attach **one volume**.
+2. Point both the brain and the accounts database inside that volume, in different folders.
+3. Set the public address so cookies are secure and the first account needs the setup code.
+
+```bash
+BRAINFOLD_ROOT=/data/brain
+BRAINFOLD_DB=/data/accounts/brainfold.db
+BRAINFOLD_PUBLIC_URL=https://your-server
+```
+
+4. Read the setup code in the service logs (`Setup code for the first account: …`) and create the first account in the panel.
+
+> Without a volume, the brain is lost on every redeploy. Add a [mirror](https://brainfold-demo-production.up.railway.app/#/docs/durability) as well.
+
+## On your own machine
+
+```bash
+uv sync
+uv run brainfold serve --root ./my-brain
+```
+
+By default the server listens only on this machine. It refuses to listen on other addresses unless you set a public URL, because that means traffic must go through a TLS proxy.
+
+## Health check
+
+`GET /api/health` answers without signing in:
+
+```json
+{ "git": true, "database": true, "unversioned_writes": 0, "mirror": "ok" }
+```
+
+
+---
+
+<!-- configuration.md -->
+
+# Configuration
+
+`brainfold serve` takes its settings from flags or from the environment.
+
+| Flag | Environment | Default | Meaning |
+| --- | --- | --- | --- |
+| `--root` | `BRAINFOLD_ROOT` | | The brain folder. Created if missing. |
+| `--db` | `BRAINFOLD_DB` | `brainfold.db` | Accounts database. Must be outside the brain folder. |
+| `--host` | | `127.0.0.1` | Address to listen on. |
+| `--port` | `PORT` | `8020` | Port to listen on. |
+| `--public-url` | `BRAINFOLD_PUBLIC_URL` | | The HTTPS address people use. Required to listen beyond this machine. |
+| `--mirror` | `BRAINFOLD_MIRROR` | | A git remote that receives every change. |
+| | `BRAINFOLD_MIRROR_KEY` | | SSH private key for the mirror, as PEM or base64. |
+| | `BRAINFOLD_MIRROR_HOST_KEY` | | The mirror's SSH host key, as a `known_hosts` line. Without it the server trusts the key it meets on the first connection. |
+
+## What a public URL changes
+
+Setting a public URL tells Brainfold it sits behind a TLS proxy at that address:
+
+- Session cookies are always marked Secure.
+- Creating the first account requires the setup code printed in the logs.
+- Requests for any other host name are refused.
+- The client address used to throttle sign-ins comes from the proxy.
+
+## The brain and the database belong together
+
+On first start the server marks the brain folder and the database with the same identity. If it later starts with the database but a different or empty folder, it stops instead of showing an empty brain. That almost always means a volume is not mounted.
+
+
+---
+
+<!-- durability.md -->
+
+# Durability and recovery
+
+The brain should never be lost. Three layers protect it.
+
+## 1. Version history
+
+Every change is a git commit inside the brain folder. A deleted or overwritten file can be [restored](https://brainfold-demo-production.up.railway.app/#/docs/history).
+
+## 2. A persistent volume
+
+The brain folder and the accounts database must live on a volume that survives redeploys. See [Run it for your team](https://brainfold-demo-production.up.railway.app/#/docs/deploy).
+
+## 3. An off-site mirror
+
+The server can push every change to a git repository somewhere else. Any git server reachable over SSH works: GitHub, GitLab, Bitbucket or your own.
+
+### Set it up
+
+1. Create a **private, empty** repository, for example `your-org/brain-backup`. It must start empty: the server never force-pushes over existing history.
+2. Generate a key used only for this, with no passphrase:
+
+```bash
+ssh-keygen -t ed25519 -N "" -f brainfold-mirror -C "brainfold mirror"
+```
+
+3. Add the public half, `brainfold-mirror.pub`, to that repository as a **deploy key with write access**. A deploy key opens that one repository and nothing else in your organization.
+4. Give the server the repository address and the private half, as environment variables. The key can be pasted as it is or encoded in base64:
+
+```bash
+BRAINFOLD_MIRROR=git@github.com:your-org/brain-backup.git
+BRAINFOLD_MIRROR_KEY=<contents of the brainfold-mirror file>
+```
+
+   To be sure the server only ever talks to the real git server, also give it that server's host key as a `known_hosts` line, in `BRAINFOLD_MIRROR_HOST_KEY`. Git hosts publish theirs; `ssh-keyscan github.com` prints it, to compare against the published one. Without it the server trusts whichever key answers its first connection.
+
+5. Restart the server and check the mirror state on the **Overview** page or in `/api/health`.
+
+The mirror is configured by whoever deploys the server. It cannot be changed from this panel.
+
+### How it behaves
+
+After every change the server pushes the history to the `main` branch in the background. Changes made while a push is running go out together in the next one, and anything not yet sent is pushed when the server starts. The server never force-pushes.
+
+| State | Meaning |
+| --- | --- |
+| `ok` | The mirror has every change. |
+| `pending` | A push is on its way. |
+| `failing` | The last push failed. The brain keeps working and the server retries on its own: after 30 seconds, then waiting twice as long each time, up to 8 minutes. Git's reason is printed in the server's output; it is usually the key, the address, or a mirror holding history this brain does not have. |
+| `off` | No mirror is configured. |
+
+### Who can read the mirror
+
+The mirror holds the **whole brain, without permissions applied**: every folder, including the restricted ones. Anyone who can read that repository reads everything. Give access to it only to the people who operate the server.
+
+### Restoring from the mirror
+
+Start the server with an **empty** brain folder and the same two variables: it clones the mirror before serving. Nothing is restored over a folder that already has content.
+
+## What the mirror does not cover
+
+The mirror holds the brain: files, guidance and access rules. It does **not** hold the accounts database: members, groups, tokens, activity and revision records. Back up the volume itself to keep those. Without the database you keep all content, and recreate accounts and groups.
+
+## Recovering access
+
+If an administrator forgets their password and no other administrator can reset it, run this on the server:
+
+```bash
+brainfold reset-password admin@example.com
+```
+
+It prints a one-time link to choose a new password.
+
+
+---
+
+<!-- tools.md -->
+
+# MCP tools
+
+What every connected agent can call. Paths are absolute inside the brain, for example `/projects/costs/process.md`.
+
+## Finding the way
+
+| Tool | What it does |
+| --- | --- |
+| `list` | A folder's description, where to start, and the entries you can see: folders with their description, files with their size and description. The root listing also names your personal folder. |
+| `read` | A text file and its `version`. Long files come in parts. |
+| `search` | Text search across the files you can read under a folder. |
+
+## Writing
+
+| Tool | What it does |
+| --- | --- |
+| `write` | Create a file, or replace one by passing the `version` you last read. Folders created on the way are named in `new_folders`, to be described. |
+| `edit` | Replace one exact fragment of a text file. The fragment must appear exactly once. |
+| `append` | Add to the end of a file, creating it if missing. Entries in a `LEARNINGS.md` are stamped with date and author. |
+| `move` | Move or rename a file or a whole folder. Needs write on both sides. |
+| `delete` | Delete a file, or an empty folder. |
+| `create_folder` | Create a folder with a description and a start here list. |
+| `describe_folder` | Update a folder's description and start here list. Access does not change. |
+| `describe_file` | Say in one line what a file is. It shows next to the file in `list`. |
+
+## History
+
+| Tool | What it does |
+| --- | --- |
+| `history` | Who changed a file and when, including deleted files. |
+| `restore` | Bring a file back to one of its revisions. |
+
+## Team knowledge
+
+| Tool | What it does |
+| --- | --- |
+| `use_skill` | Load a shared procedure by name and follow it. |
+| `list_learnings` | The newest notes from the `LEARNINGS.md` files you can read. |
+
+## Managing access
+
+Only for an administrator's token created with *Can manage access and groups*. Any other token gets `forbidden`.
+
+| Tool | What it does |
+| --- | --- |
+| `get_access` | A folder and its subfolders with the `read` and `write` lists each declares, plus every group and member. Shows folder names, never content. |
+| `set_access` | Replace a folder's `read` and `write` lists. `null` inherits from the folder above; an empty list grants nobody. Description and start here stay. |
+| `set_group` | Replace a group's members, creating it if missing. An empty list deletes it and retires its name. |
+
+Inviting and removing members, password resets and activity stay in the panel.
+
+## Errors
+
+Every error has a stable code and a message written for the agent.
+
+| Code | Meaning |
+| --- | --- |
+| `unavailable` | The path does not exist or you cannot read it. The two are indistinguishable. |
+| `write_denied` | You can read here but not write. The message names the administrators who can grant it. |
+| `conflict` | The file changed since the version you read. Read again. |
+| `already_exists` | Something is already at that path. |
+| `folder_not_empty` | Only empty folders can be deleted. |
+| `folder_not_movable` | The folder has access set by an administrator, or content you cannot see. |
+| `invalid_edit` | The fragment to replace was not found exactly once. |
+| `file_too_large` | Over the size limit for this channel. |
+| `forbidden` | The token cannot do this: managing access needs an administrator's managing token. |
+| `no_history` | There is no revision you are allowed to restore. |
+| `unauthenticated` | The token is missing, wrong or revoked. |
+
+
+---
+
+<!-- cli.md -->
+
+# Command line
+
+The `brainfold` command runs the server and moves files.
+
+## brainfold serve
+
+Serve a folder as a shared brain. See [Configuration](https://brainfold-demo-production.up.railway.app/#/docs/configuration) for every setting.
+
+```bash
+brainfold serve --root ./my-brain
+```
+
+## brainfold put
+
+Upload a file of any type.
+
+```bash
+brainfold put <file> <path-in-the-brain> [--replace]
+```
+
+## brainfold get
+
+Download a file.
+
+```bash
+brainfold get <path-in-the-brain> <destination>
+```
+
+`put` and `get` read the server address and your token from `BRAINFOLD_URL` and `BRAINFOLD_TOKEN`, or from `~/.config/brainfold/config.toml`. See [Files of any type](https://brainfold-demo-production.up.railway.app/#/docs/files).
+
+## brainfold reset-password
+
+Run on the server to recover an account. Prints a one-time link.
+
+```bash
+brainfold reset-password <email> [--db <database>] [--public-url <address>]
+```

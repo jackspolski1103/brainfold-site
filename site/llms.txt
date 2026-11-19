@@ -1,0 +1,34 @@
+# Brainfold
+
+> Brainfold is an open source MCP server that turns a folder into a team's shared brain: folders and files with permissions that Claude Code, Codex, Cursor or any other MCP harness reads and writes. One server per team; each person connects their own agent with a personal token, and the agent gets exactly that person's access.
+
+Brainfold is not an agent and does not run models. It is self-hosted (Python, Docker image, Apache-2.0). It does not use embeddings or RAG: the brain is plain files with a git history, text search, and a description and "start here" list on every folder. Reading is denied unless a folder grants it, and what is denied looks the same as what does not exist. The project is in early development.
+
+## Documentation
+
+- [What is Brainfold?](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/introduction.md): the idea, the pieces and where to go next
+- [Quickstart](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/quickstart.md): from an empty server to an agent using the brain, in five steps
+- [Connect a harness](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/connect.md): commands for Claude Code, Codex, Cursor and other MCP clients
+- [Folders and guidance](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/folders.md): the `.brainfold.toml` of each folder, descriptions and "start here"
+- [Permissions](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/permissions.md): how read and write are decided per folder, for people and groups
+- [Skills and learnings](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/skills.md): procedures shared through `use_skill` and the learnings log
+- [Versions, history and restore](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/history.md): conflict detection, history and restoring a file
+- [Files of any type](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/files.md): binary files through `brainfold put` and `brainfold get`
+- [Members and groups](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/members.md): invitations, password resets and groups
+- [Activity](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/activity.md): the log of every call, allowed or denied
+- [Run it for your team](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/deploy.md): Docker Compose, a hosting platform, health check
+- [Configuration](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/configuration.md): environment variables and settings
+- [Durability and recovery](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/durability.md): volumes, the off-site mirror and recovery
+- [MCP tools](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/tools.md): reference of the 15 tools
+- [Command line](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/web/src/docs/cli.md): `brainfold serve`, `put`, `get` and `reset-password`
+
+## Source
+
+- [Repository](https://github.com/jackspolski1103/brainfold): code, README and license
+- [README](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/README.md): status, local quickstart and brain format
+- [Scope](https://raw.githubusercontent.com/jackspolski1103/brainfold/main/docs/scope.md): what Brainfold is and what it deliberately is not
+
+## Optional
+
+- [Full documentation in one file](https://brainfold-site-production.up.railway.app/llms-full.txt): every documentation page concatenated
+- [Documentation in the panel](https://brainfold-demo-production.up.railway.app/#/docs): the same pages rendered for people (needs JavaScript)

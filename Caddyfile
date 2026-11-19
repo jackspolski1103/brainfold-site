@@ -1,5 +1,7 @@
 :{$PORT:8080} {
 	root * /srv
 	encode gzip
+	header /assets/* Cache-Control "public, max-age=86400"
+	header /llms*.txt Content-Type "text/markdown; charset=utf-8"
 	file_server
 }

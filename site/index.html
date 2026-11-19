@@ -3,11 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Brainfold: a shared brain for your team's agents</title>
-<meta name="description" content="Brainfold is an open source MCP server that turns a folder into your team's shared brain: files with permissions that Claude Code, Codex or any MCP harness reads and writes.">
-<meta property="og:title" content="Brainfold: a shared brain for your team's agents">
-<meta property="og:description" content="An open source MCP server: folders and files with permissions that any agent harness reads and writes.">
-<meta property="og:image" content="assets/access.png">
+<title>Brainfold: shared memory for your team's AI agents, over MCP</title>
+<meta name="description" content="Brainfold is an open source, self-hosted MCP server that gives a team's AI agents one shared memory: folders and files with permissions that Claude Code, Codex, Cursor or any MCP client reads and writes.">
+<meta name="keywords" content="MCP server, shared memory for AI agents, team memory, agent memory, Claude Code, Codex, Cursor, Model Context Protocol, self-hosted, open source, permissions, knowledge base">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="canonical" href="https://brainfold-site-production.up.railway.app/">
+<link rel="alternate" type="text/plain" href="https://brainfold-site-production.up.railway.app/llms.txt" title="Brainfold for language models (llms.txt)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Brainfold">
+<meta property="og:url" content="https://brainfold-site-production.up.railway.app/">
+<meta property="og:title" content="Brainfold: shared memory for your team's AI agents, over MCP">
+<meta property="og:description" content="An open source, self-hosted MCP server: folders and files with permissions that Claude Code, Codex or any MCP harness reads and writes.">
+<meta property="og:image" content="https://brainfold-site-production.up.railway.app/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Brainfold panel: who reads and who writes each folder of the team's brain">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Brainfold: shared memory for your team's AI agents, over MCP">
+<meta name="twitter:description" content="An open source, self-hosted MCP server: folders and files with permissions that any agent harness reads and writes.">
+<meta name="twitter:image" content="https://brainfold-site-production.up.railway.app/assets/og.png">
+<meta name="theme-color" content="#0e1014">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "@id": "https://brainfold-site-production.up.railway.app/#website", "url": "https://brainfold-site-production.up.railway.app/", "name": "Brainfold", "description": "Brainfold is an open source, self-hosted MCP server that gives a team's AI agents one shared memory: folders and files with permissions that Claude Code, Codex, Cursor or any MCP client reads and writes.", "inLanguage": "en"}, {"@type": "SoftwareApplication", "@id": "https://brainfold-site-production.up.railway.app/#software", "name": "Brainfold", "url": "https://brainfold-site-production.up.railway.app/", "description": "Brainfold is an open source, self-hosted MCP server that gives a team's AI agents one shared memory: folders and files with permissions that Claude Code, Codex, Cursor or any MCP client reads and writes.", "applicationCategory": "DeveloperApplication", "applicationSubCategory": "MCP server", "operatingSystem": "Linux, macOS, Docker", "license": "https://www.apache.org/licenses/LICENSE-2.0", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "image": "https://brainfold-site-production.up.railway.app/assets/og.png", "screenshot": "https://brainfold-site-production.up.railway.app/assets/access.png", "softwareHelp": {"@type": "CreativeWork", "url": "https://brainfold-demo-production.up.railway.app/#/docs"}, "featureList": ["Read and write permissions per folder, for people and groups", "15 MCP tools over plain files", "Skills delivered to each agent through use_skill", "Version history and restore", "Activity log of every call, allowed or denied", "Web panel for access, members, tokens and activity"], "sameAs": ["https://github.com/jackspolski1103/brainfold"]}, {"@type": "SoftwareSourceCode", "name": "Brainfold", "codeRepository": "https://github.com/jackspolski1103/brainfold", "programmingLanguage": "Python", "license": "https://www.apache.org/licenses/LICENSE-2.0", "runtimePlatform": "Python 3.12", "targetProduct": {"@id": "https://brainfold-site-production.up.railway.app/#software"}}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is Brainfold?", "acceptedAnswer": {"@type": "Answer", "text": "Brainfold is an open source MCP server that turns a folder into a team's shared brain: folders and files with permissions, served over the Model Context Protocol. Each person connects their own harness and their agent reads and writes the same brain, with exactly the access that person has."}}, {"@type": "Question", "name": "Is Brainfold an agent or a model?", "acceptedAnswer": {"@type": "Answer", "text": "No. Brainfold is not an agent and does not run models. It is the memory your agents share. Your harness (Claude Code, Codex or another) stays in charge of the model, the tools and running skills."}}, {"@type": "Question", "name": "Which agent harnesses work with Brainfold?", "acceptedAnswer": {"@type": "Answer", "text": "Any MCP client that speaks HTTP with a bearer token. The panel gives setup commands for Claude Code, Codex and Cursor. The connection was checked with Claude Code; the Codex and Cursor settings follow their documentation."}}, {"@type": "Question", "name": "How do permissions work?", "acceptedAnswer": {"@type": "Answer", "text": "Access is decided per folder, for two actions: read and write, granted to people or groups. Reading is denied unless a folder grants it, and what is denied looks the same as what does not exist. An agent has exactly the access of the person whose token it uses."}}, {"@type": "Question", "name": "How is it different from CLAUDE.md or a memory per agent?", "acceptedAnswer": {"@type": "Answer", "text": "A memory file or a per-agent memory stays with one person and one harness. Brainfold is one server per team: what one agent writes, every teammate's agent that is allowed to read it finds in its next session, whichever harness they use."}}, {"@type": "Question", "name": "Does Brainfold use embeddings or RAG?", "acceptedAnswer": {"@type": "Answer", "text": "No. The brain is plain files with a git history. Agents find what matters through text search and through the description and start-here list that every folder carries."}}, {"@type": "Question", "name": "Is there a hosted version?", "acceptedAnswer": {"@type": "Answer", "text": "No. Brainfold is self-hosted: each team runs its own server, with Docker Compose or on a hosting platform that builds a Dockerfile and provides a volume."}}, {"@type": "Question", "name": "What license is Brainfold under?", "acceptedAnswer": {"@type": "Answer", "text": "Apache-2.0. It is a personal, independent open source project in early development."}}]}]}</script>
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,6 +74,9 @@
   pre { margin: 0; padding: 20px; overflow-x: auto; font: 14px/1.7 var(--mono); color: var(--fg); }
   pre .c { color: var(--faint); }
   code { font-family: var(--mono); font-size: 0.92em; }
+  .faq details { border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .faq summary { cursor: pointer; font-weight: 500; }
+  .faq p { color: var(--muted); margin: 10px 0 0; max-width: 70ch; }
   footer { border-top: 1px solid var(--line); padding: 28px 0 44px; color: var(--faint); font-size: 14px; }
   footer a { color: var(--muted); }
 </style>
@@ -77,8 +96,8 @@
 <main>
   <div class="wrap hero">
     <span class="badge">Open source · Apache-2.0 · early development</span>
-    <h1>A shared brain for your team's agents</h1>
-    <p class="lede">Brainfold is an MCP server that turns a folder into your team's memory: files with permissions that Claude Code, Codex or any other harness reads and writes. One server per team; each person connects their own agent.</p>
+    <h1>A shared brain for your team's AI agents</h1>
+    <p class="lede">Brainfold is an open source, self-hosted MCP server that turns a folder into your team's shared memory: files with permissions that Claude Code, Codex or any other harness reads and writes. One server per team; each person connects their own agent.</p>
     <div class="actions">
       <a class="button primary" href="https://github.com/jackspolski1103/brainfold">View on GitHub</a>
       <a class="button" href="https://brainfold-demo-production.up.railway.app/#/docs/quickstart">Read the quickstart</a>
@@ -109,8 +128,8 @@
       <h2>Same server, different view</h2>
       <p class="sub">An agent has exactly the access of the person whose token it uses. In this synthetic example, Bruno is on the costs team and Carla is not.</p>
       <div class="pair">
-        <figure><div class="frame"><img src="assets/brain.png" alt="The panel showing a cost review file inside projects/costs" loading="lazy"></div><figcaption><b>A member of the costs team</b> reads the review that an agent wrote into <code>/projects/costs</code>.</figcaption></figure>
-        <figure><div class="frame"><img src="assets/brain-carla.png" alt="The panel for another member: projects lists only contracts" loading="lazy"></div><figcaption><b>Carla</b> sees only <code>contracts</code>. For her agent the costs folder does not exist, and <span class="denied">the refused read</span> is in the activity log.</figcaption></figure>
+        <figure><div class="frame"><img src="assets/brain.png" width="1600" height="1000" alt="Brainfold panel: a member of the costs team reads a cost review file that an agent wrote into projects/costs" loading="lazy"></div><figcaption><b>A member of the costs team</b> reads the review that an agent wrote into <code>/projects/costs</code>.</figcaption></figure>
+        <figure><div class="frame"><img src="assets/brain-carla.png" width="1600" height="1000" alt="Brainfold panel for a member without access: projects lists only contracts, the costs folder is not shown" loading="lazy"></div><figcaption><b>Carla</b> sees only <code>contracts</code>. For her agent the costs folder does not exist, and <span class="denied">the refused read</span> is in the activity log.</figcaption></figure>
       </div>
     </div>
   </section>
@@ -133,6 +152,22 @@ claude mcp add --transport http brainfold http://127.0.0.1:8020/mcp \
 
   <section>
     <div class="wrap">
+      <h2>Questions</h2>
+      <div class="faq">
+        <details><summary>What is Brainfold?</summary><p>Brainfold is an open source MCP server that turns a folder into a team's shared brain: folders and files with permissions, served over the Model Context Protocol. Each person connects their own harness and their agent reads and writes the same brain, with exactly the access that person has.</p></details>
+        <details><summary>Is Brainfold an agent or a model?</summary><p>No. Brainfold is not an agent and does not run models. It is the memory your agents share. Your harness (Claude Code, Codex or another) stays in charge of the model, the tools and running skills.</p></details>
+        <details><summary>Which agent harnesses work with Brainfold?</summary><p>Any MCP client that speaks HTTP with a bearer token. The panel gives setup commands for Claude Code, Codex and Cursor. The connection was checked with Claude Code; the Codex and Cursor settings follow their documentation.</p></details>
+        <details><summary>How do permissions work?</summary><p>Access is decided per folder, for two actions: read and write, granted to people or groups. Reading is denied unless a folder grants it, and what is denied looks the same as what does not exist. An agent has exactly the access of the person whose token it uses.</p></details>
+        <details><summary>How is it different from CLAUDE.md or a memory per agent?</summary><p>A memory file or a per-agent memory stays with one person and one harness. Brainfold is one server per team: what one agent writes, every teammate's agent that is allowed to read it finds in its next session, whichever harness they use.</p></details>
+        <details><summary>Does Brainfold use embeddings or RAG?</summary><p>No. The brain is plain files with a git history. Agents find what matters through text search and through the description and start-here list that every folder carries.</p></details>
+        <details><summary>Is there a hosted version?</summary><p>No. Brainfold is self-hosted: each team runs its own server, with Docker Compose or on a hosting platform that builds a Dockerfile and provides a volume.</p></details>
+        <details><summary>What license is Brainfold under?</summary><p>Apache-2.0. It is a personal, independent open source project in early development.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
       <h2>Where it stands</h2>
       <p class="sub">Brainfold is young. The server, permissions, history, skills, accounts and the web panel work and are tested, and it runs on the author's own deployment. It has not been used by many teams yet, so expect rough edges and open an issue with what you find.</p>
       <div class="actions">
@@ -144,7 +179,7 @@ claude mcp add --transport http brainfold http://127.0.0.1:8020/mcp \
 </main>
 
 <footer>
-  <div class="wrap">Brainfold is a personal, independent open source project under the <a href="https://github.com/jackspolski1103/brainfold/blob/main/LICENSE">Apache-2.0</a> license. The screenshots show synthetic data.</div>
+  <div class="wrap">Brainfold is a personal, independent open source project under the <a href="https://github.com/jackspolski1103/brainfold/blob/main/LICENSE">Apache-2.0</a> license. The screenshots show synthetic data. Agents and language models: start at <a href="/llms.txt">llms.txt</a>.</div>
 </footer>
 
 </body>

@@ -1,0 +1,5 @@
+# Everyone is welcome, search engines and AI agents alike.
+User-agent: *
+Allow: /
+
+Sitemap: https://brainfold-site-production.up.railway.app/sitemap.xml
